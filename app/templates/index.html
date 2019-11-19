@@ -13,6 +13,11 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style type="text/css">
+    	ul>li {
+    		list-style:none;
+    	}
+    </style>
 </head>
 <body>
 <div class="container">
@@ -25,7 +30,7 @@
     </div>
     <h2 style="margin-top: 30px">Fun With Funnels</h2>
     <h5 style="margin-top: 30px">
-        Report based on data collected by AppMetrica.
+        Report based on data collected by AppMetrica. ski --version
     </h5>
     <form style="margin-top: 30px" action="/result" method="GET" role="form">
         {{form.hidden_tag()}}
@@ -51,7 +56,7 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row" style="height: 203px;">
             <div class="col-md-3">
                 <div class="form-group">
                     <label for="country">Country</label>
@@ -62,6 +67,12 @@
                 <div class="form-group">
                     <label for="platform">Platform</label>
                     {{form.platform(class="form-control", id="platform")}}
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="bundleids">App Bundle Identifier</label>
+                    {{form.bundleids(class="form-control", id="bundleids")}}
                 </div>
             </div>
         </div>

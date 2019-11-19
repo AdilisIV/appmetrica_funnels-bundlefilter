@@ -35,7 +35,7 @@ def index():
 
 
 @app.route('/result', methods=['GET', 'POST'])
-def get_result():
+def get_result():    
     params = request.args.to_dict(flat=True)
     print params
 
@@ -43,6 +43,7 @@ def get_result():
     end_date = params['end_date']
     api_key = params['api_key']
     platform = params['platform']
+    bundleids = request.values.getlist('bundleids')
     country = params['country']
     version_filters_param = params['version_filters_param']
     version_filters_limit = params['version_filters_limit']
@@ -61,7 +62,7 @@ def get_result():
         cur_steps = map(lambda x: x.strip(), cur_steps)
         steps.append(cur_steps)
 
-    funnel, query = utils.get_funnel_result(start_date, end_date, api_key, platform, country, steps, version_filters_param, version_filters_condition, version_filters_limit)
+    funnel, query = utils.get_funnel_result(start_date, end_date, api_key, platform, bundleids, country, steps, version_filters_param, version_filters_condition, version_filters_limit)
 
     return render_template("result.html",
                            query=query,
@@ -69,6 +70,7 @@ def get_result():
                            start_date=start_date,
                            end_date=end_date,
                            platform=platform,
+                           bundleids=bundleids,
                            api_key=api_key,
                            country=country,
                            version_filters_param = version_filters_param,

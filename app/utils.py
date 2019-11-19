@@ -71,7 +71,7 @@ def get_clickhouse_df(query, host=HOST, connection_timeout=1500):
     return df
 
 
-def get_funnel_clickhouse(date1, date2, api_key, platform, country, global_condition, steps_achieved_select,
+def get_funnel_clickhouse(date1, date2, api_key, platform, country, global_condition, bundle_condition, steps_achieved_select,
                           steps_achieved_groupby, steps_indexes,
                           version_filters_param, version_filters_condition, version_filters_limit):
     q_tmpl = '''
@@ -92,8 +92,9 @@ def get_funnel_clickhouse(date1, date2, api_key, platform, country, global_condi
             FROM mobile.events_all
             WHERE EventDate >= '{start_date}'
                 AND EventDate <= '{end_date}' {platform_filter}
-                AND APIKey = {api_key} {country_filter} {version_filter}
+                AND AppID = {api_key} {country_filter} {version_filter}
                 AND ({global_condition})
+                AND ({bundle_condition})
             ORDER BY EventTimestamp)
         GROUP BY DeviceID)
     GROUP BY
@@ -134,6 +135,7 @@ def get_funnel_clickhouse(date1, date2, api_key, platform, country, global_condi
         country_filter=country_filter,
         version_filter=version_filter,
         global_condition=global_condition,
+        bundle_condition=bundle_condition,
         steps_achieved_select=steps_achieved_select,
         steps_achieved_groupby=steps_achieved_groupby,
         steps_indexes=steps_indexes
@@ -142,7 +144,7 @@ def get_funnel_clickhouse(date1, date2, api_key, platform, country, global_condi
     return get_clickhouse_df(q), q
 
 
-def get_funnel_plotly(values):
+def get_funnel_plotly(values, steps):
     if len(values) == 0:
         return ''
 
@@ -153,7 +155,8 @@ def get_funnel_plotly(values):
         else:
             values_labels.append('%d (%.2f%%)' % (values[i], (100. * values[i]) / values[i - 1]))
 
-    phases = map(lambda x: 'Step ' + str(x + 1), range(len(values)))
+    # phases = map(lambda x: 'Step ' + str(x + 1), range(len(values)))
+    phases = map(lambda x: x[0], steps)
 
     colors = ['#d54936', '#faca34', '#437cba', '#8bc34a', '#795548',
               '#309688', '#000000', '#40bcd4', '#9e9e9e', '#3ca9f4']
@@ -263,7 +266,7 @@ def get_funnel_plotly(values):
     return html
 
 
-def get_funnel_result(date1, date2, api_key, platform, country, steps, version_filters_param, version_filters_condition, version_filters_limit):
+def get_funnel_result(date1, date2, api_key, platform, bundleids, country, steps, version_filters_param, version_filters_condition, version_filters_limit):
     all_events = set()
     step_conditions = []
     for step_items in steps:
@@ -271,7 +274,9 @@ def get_funnel_result(date1, date2, api_key, platform, country, steps, version_f
         step_conditions.append(step_condition)
         for event in step_items:
             all_events.add(event)
-
+    
+    # for bundle in bundleids:
+    bundle_condition = reduce(lambda x, y: x + ' OR ' + y, map(lambda x: "(AppPackageName = '%s')" % x, list(bundleids)))
     global_condition = reduce(lambda x, y: x + ' OR ' + y, map(lambda x: "(EventName = '%s')" % x, list(all_events)))
 
     steps_achieved_select_lst = []
@@ -303,7 +308,7 @@ def get_funnel_result(date1, date2, api_key, platform, country, steps, version_f
     steps_achieved_groupby = ',\n'.join(steps_achieved_groupby_lst)
     steps_indexes = ',\n'.join(steps_indexes_lst)
 
-    df, query = get_funnel_clickhouse(date1, date2, api_key, platform, country, global_condition, steps_achieved_select,
+    df, query = get_funnel_clickhouse(date1, date2, api_key, platform, country, global_condition, bundle_condition, steps_achieved_select,
                                       steps_achieved_groupby, steps_indexes, version_filters_param, version_filters_condition, version_filters_limit)
 
     df['step'] = df[filter(lambda x: x != 'devices', df.columns)].sum(axis=1)
@@ -313,5 +318,5 @@ def get_funnel_result(date1, date2, api_key, platform, country, steps, version_f
     df['devices_cum'] = df.devices.cumsum()
     df.sort_values('step', inplace=True)
 
-    html = get_funnel_plotly(df.devices_cum.values)
+    html = get_funnel_plotly(df.devices_cum.values, steps)
     return html, query

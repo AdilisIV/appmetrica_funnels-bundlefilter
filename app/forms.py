@@ -11,7 +11,8 @@
 '''
 
 from flask_wtf import Form
-from wtforms import TextField, SelectField
+from wtforms import TextField, SelectField, SelectMultipleField
+from wtforms import widgets
 
 COUNTRY_CHOICES = [
     (u'', u'World'),
@@ -44,6 +45,15 @@ VERSION_FILTERS_CONDITION = [
     (u'<', u'<')
 ]
 
+BUNDLES = [
+    ('ru.ds24.YitPlus','YIT iOS'),
+    ('ru.ds24.yitplus','YIT Android'),
+    ('ru.ds24.etalon','Etalon iOS+Android'),
+    ('ru.ds24.oico','OICO Android'),
+    ('ru.ds24.OICO','OICO iOS'),
+    ('ru.ds24.egorod','Egorod iOS+Android')
+]
+
 
 class ParamsForm(Form):
     start_date = TextField(u'Start Date')
@@ -51,6 +61,7 @@ class ParamsForm(Form):
     api_key = TextField(u'API Key')
     platform = SelectField(u'Platform', choices=PLATFORM_CHOICES)
     country = SelectField(u'Country', choices=COUNTRY_CHOICES)
+    bundleids = SelectMultipleField(u'AppBundleIdentifier', choices = BUNDLES, option_widget=widgets.CheckboxInput(), widget=widgets.ListWidget(prefix_label=False))
     version_filters_param = SelectField(u'VersionFilterParam', choices = VERSION_FILTERS_PARAM)
     version_filters_condition = SelectField(u'VersionFilterCondition', choices = VERSION_FILTERS_CONDITION)
     version_filters_limit = TextField(u'Limit')
