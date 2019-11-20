@@ -62,6 +62,7 @@ def get_create_date(api_key, token):
         app_details = json.loads(r.text)
         if ('application' in app_details) and ('create_date' in app_details['application']):
             create_date = app_details['application']['create_date']
+            return create_date
 
 
 def get_clickhouse_data(query, host=CH_HOST):
@@ -262,12 +263,12 @@ def main(first_flag=False):
         api_keys = json.loads(os.environ['API_KEYS'])
 
     if first_flag:
-        # create_date = get_create_date(api_key, token)
-        # if create_date is None:
-        #     date1 = (datetime.datetime.today() - datetime.timedelta(365)).strftime('%Y-%m-%d')
-        # else:
-        #     date1 = create_date
-        date1 = (datetime.datetime.today() - datetime.timedelta(LOGS_API_HISTORY_PERIOD)).strftime('%Y-%m-%d')
+        create_date = get_create_date(api_keys[0], token)
+        if create_date is None:
+            date1 = (datetime.datetime.today() - datetime.timedelta(365)).strftime('%Y-%m-%d')
+        else:
+            date1 = create_date
+        # date1 = (datetime.datetime.today() - datetime.timedelta(LOGS_API_HISTORY_PERIOD)).strftime('%Y-%m-%d')
     else:
         date1 = (datetime.datetime.today() - datetime.timedelta(7)).strftime('%Y-%m-%d')
 
