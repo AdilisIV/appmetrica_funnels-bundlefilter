@@ -9,10 +9,13 @@ services:
      - CH_HOST=http://clickhouse:8123
      - TOKEN=ENTER_OAUTH_TOKEN_HERE
      - API_KEYS=["ENTER_API_KEY_HERE"]
+     - LOGS_API_HISTORY_PERIOD=30
     depends_on:
      - clickhouse
   clickhouse:
     image: 'yandex/clickhouse-server'
+    ports:
+     - '8123:8123'
     volumes:
       - db-data:/var/lib/clickhouse
 volumes:

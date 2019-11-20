@@ -92,7 +92,7 @@ def get_funnel_clickhouse(date1, date2, api_key, platform, country, global_condi
             FROM mobile.events_all
             WHERE EventDate >= '{start_date}'
                 AND EventDate <= '{end_date}' {platform_filter}
-                AND AppID = {api_key} {country_filter} {version_filter}
+                AND APIKey = {api_key} {country_filter} {version_filter}
                 AND ({global_condition})
                 AND ({bundle_condition})
             ORDER BY EventTimestamp)
