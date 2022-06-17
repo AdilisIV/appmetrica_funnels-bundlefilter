@@ -1,6 +1,6 @@
 requests==2.21.0
 pandas==0.20.1
-numpy==1.12.1
+numpy==1.21.0
 flask_bootstrap==3.3.7.1
 flask_wtf==0.14.2
 flask==0.12
